@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Real-Time Products</title>
+</head>
+<body>
+  <h1>Lista de Productos en Tiempo Real</h1>
+  <ul id="productList">
+    {{#each products}}
+      <li>{{this.name}} - {{this.price}}</li>
+    {{/each}}
+  </ul>
+  
+  <form id="productForm">
+    <input type="text" id="productName" placeholder="Nombre del producto">
+    <input type="number" id="productPrice" placeholder="Precio del producto">
+    <button type="submit">Crear Producto</button>
+  </form>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+
+    document.getElementById('productForm').addEventListener('submit', (event) => {
+      event.preventDefault();
+      
+      const productName = document.getElementById('productName').value;
+      const productPrice = parseFloat(document.getElementById('productPrice').value);
+
+      // Enviar los datos del formulario al servidor a través de WebSocket
+      socket.emit('createProduct', { name: productName, price: productPrice });
+
+      // Limpiar los campos del formulario después de enviar los datos
+      document.getElementById('productName').value = '';
+      document.getElementById('productPrice').value = '';
+    });
+
+    socket.on('updateProducts', (updatedProducts) => {
+      const productList = document.getElementById('productList');
+      productList.innerHTML = ''; // Limpiar la lista existente
+
+      updatedProducts.forEach(product => {
+        const listItem = document.createElement('li');
+        listItem.textContent = `${product.name} - ${product.price}`;
+        productList.appendChild(listItem);
+      });
+    });
+  </script>
+</body>
+</html>
