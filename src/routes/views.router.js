@@ -14,3 +14,4 @@ viewsRouter.get('/realtimeproducts', (req, res) => {
 });
 
 export default viewsRouter;
+
