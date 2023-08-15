@@ -11,29 +11,29 @@ const server = http.createServer(app);
 const io = new SocketIOServer(server);
 
 // Configurar Handlebars como el motor de plantillas
-app.engine('handlebars', exphbs());
+app.engine('handlebars', exphbs.engine());
 app.set('view engine', 'handlebars');
-
+app.set('views', path.join(__dirname, '/views'));
 app.use(express.static(path.join(__dirname, 'public'))); 
 
 const productManager = new ProductManager(path.join(__dirname, 'products.json')); 
 
 app.get('/', (req, res) => {
-  res.render('home', { products: ProductManager.getProducts() });
+  res.render('home', { products: productManager.getProducts() });
 });
 
 app.get('/realtimeproducts', (req, res) => {
-  res.render('realTimeProducts', { products: ProductManager.getProducts() });
+  res.render('realTimeProducts', { products: productManager.getProducts() });
 });
 
 io.on('connection', (socket) => {
   console.log('Usuario conectado');
 
   socket.on('createProduct', (product) => {
-    ProductManager.addProduct(product);
+    productManager.addProduct(product);
 
     // Emitir el evento 'updateProducts' a través de socket.io con la lista de productos actualizada
-    io.emit('updateProducts', ProductManager.getProducts());
+    io.emit('updateProducts', productManager.getProducts());
   });
 
   socket.on('disconnect', () => {
